@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"flag"
 	"log"
 	"os"
 	"strconv"
@@ -151,6 +152,7 @@ func parseParams(params []string) (*albLog, error) {
 			f64v, err := strconv.ParseFloat(s, 64)
 			if err != nil {
 				log.Printf("parse %s error: %s\n", tags[i], err.Error())
+				m[tags[i]] = s
 				return
 			}
 			m[tags[i]] = f64v
@@ -158,6 +160,7 @@ func parseParams(params []string) (*albLog, error) {
 			iv, err := strconv.Atoi(s)
 			if err != nil {
 				log.Printf("parse %s error: %s\n", tags[i], err.Error())
+				m[tags[i]] = s
 				return
 			}
 			m[tags[i]] = iv
@@ -165,6 +168,7 @@ func parseParams(params []string) (*albLog, error) {
 			ui64v, err := strconv.ParseUint(s, 10, 64)
 			if err != nil {
 				log.Printf("parse %s error: %s\n", tags[i], err.Error())
+				m[tags[i]] = s
 				return
 			}
 			m[tags[i]] = ui64v
@@ -221,6 +225,13 @@ func parseParams(params []string) (*albLog, error) {
 }
 
 func main() {
+	out := flag.String("out", "/dev/stderr", "log out")
+	w, err := os.Open(*out)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	flag.Parse()
+	log.SetOutput(w)
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for scanner.Scan() {
